@@ -21,9 +21,12 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AlphaAnimation;
 import android.widget.FrameLayout;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 
 /**
  * Created by Mohammad Reza Eram on 20/01/2018.
+ *edit by mars on 7/25/2018
  */
 
 public class GuideView extends FrameLayout {
@@ -53,6 +56,7 @@ public class GuideView extends FrameLayout {
     final Paint targetPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     final Xfermode XFERMODE_CLEAR = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
 
+    private Button btnNext;
 
     public interface GuideListener {
         void onDismiss(View view);
@@ -81,6 +85,33 @@ public class GuideView extends FrameLayout {
                 locationTarget[1] + target.getHeight());
 
         mMessageView = new GuideMessageView(getContext());
+        
+        
+        //button Next
+           btnNext = new Button(getContext());
+
+        btnNext.setText("Next");
+        btnNext.setTextColor(Color.BLACK);
+
+        LayoutParams layoutParamsNext = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 48);
+
+        btnNext.setLayoutParams(layoutParamsNext);
+
+        btnNext.setOnClickListener(v -> dismiss());
+        RelativeLayout layoutNext = new RelativeLayout(getContext());
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        layoutNext.setPadding(48, 48, 48, 48);
+        layoutNext.addView(btnNext, lp);
+        
+        
+        
+        
+        
+        
+        
+        
         final int padding = (int) (5 * density);
         mMessageView.setPadding(padding, padding, padding, padding);
         mMessageView.setColor(Color.WHITE);
@@ -88,6 +119,7 @@ public class GuideView extends FrameLayout {
         addView(mMessageView, new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
+          addView(layoutNext);
 
         setMessageLocation(resolveMessageViewLocation());
 
@@ -102,6 +134,8 @@ public class GuideView extends FrameLayout {
             }
         });
     }
+    
+
 
     private int getNavigationBarSize() {
         Resources resources = getContext().getResources();
@@ -319,6 +353,17 @@ public class GuideView extends FrameLayout {
     public void setContentTextSize(int size) {
         mMessageView.setContentTextSize(size);
     }
+    
+        private void changeStateButtonNext(boolean state) {
+        if (state)
+            btnNext.setVisibility(VISIBLE);
+        else
+            btnNext.setVisibility(GONE);
+    }
+
+    private void setTextNext(String textNext) {
+        btnNext.setText(textNext);
+    }
 
 
     public static class Builder {
@@ -332,6 +377,9 @@ public class GuideView extends FrameLayout {
         private Spannable contentSpan;
         private Typeface titleTypeFace, contentTypeFace;
         private GuideListener guideListener;
+        
+        private boolean showButtonNext;
+        private String textNext;
 
         public Builder(Context context) {
             this.context = context;
@@ -403,6 +451,11 @@ public class GuideView extends FrameLayout {
             this.dismissType = dismissType;
             return this;
         }
+        
+          public Builder setTextNext(String textNext) {
+            this.textNext = textNext;
+            return this;
+        }
 
         public GuideView build() {
             GuideView guideView = new GuideView(context, targetView);
@@ -427,6 +480,11 @@ public class GuideView extends FrameLayout {
             if (guideListener != null) {
                 guideView.mGuideListener = guideListener;
             }
+            
+             if (textNext != null && !textNext.trim().isEmpty())
+                guideView.setTextNext(textNext);
+
+            guideView.changeStateButtonNext(this.showButtonNext);
 
             return guideView;
         }
